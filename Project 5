@@ -1,0 +1,158 @@
+import random
+import numpy as np
+
+array2d  = []
+arrayF = []
+arRandom = []
+sumOfAttack = 0
+number8 = []
+indiNumber = 6
+def startRandom():
+    random8 = []
+    for _ in range(indiNumber):
+        arRandom = []
+        for _ in range(8):
+            arRandom.append(random.randint(1,8))
+        random8.append(arRandom)
+    return random8
+
+def generateArray(a):
+    arrayZeros = np.zeros((8, 8))
+    ar = []
+    for i in range(8):
+        arrayZeros[8-a[i]][i] = a[i]
+    for i in reversed(range(8)):
+        ar.append(arrayZeros[i])
+    return ar
+
+def rUpper(m,n,a):
+    c = 0
+    while True:
+        m -= 1
+        n += 1
+        if  m < 0 or n > 7:
+            break
+        else:
+            if int(a[m][n]) > 0:
+                c += 1
+    return c
+
+def rDown(m,n,a):
+    c = 0
+    while True:
+        m += 1
+        n += 1
+        if  n > 7 or m > 7:
+            break
+        else:
+            if int(a[m][n]) > 0:
+                c += 1
+    return c
+
+def line(m,n,a):
+    c = 0
+    while True:
+        n += 1
+        if  n > 7:
+            break
+        else:
+            if int(a[m][n]) > 0:
+                c += 1
+    return c
+def start(number8):
+    startArray = []   
+    for i in range(len(number8)):
+        a = generateArray(number8[i])
+        sumOfAttack = 0
+        for j in range(len(number8[i])):
+            sumOfAttack += rUpper(int(number8[i][j]) - 1, j, a)
+            sumOfAttack += rDown(int(number8[i][j]) - 1, j, a)
+            sumOfAttack += line(int(number8[i][j]) - 1, j, a)
+        startArray.append(28 - sumOfAttack)
+    return startArray
+
+number8 = startRandom()
+arrayF = start(number8)
+
+for i in range(len(arrayF)):
+    print(f'F{i+1} = {arrayF[i]}', end=" ")
+print(f'\nF = {sum(arrayF)}')
+q = 0
+w = 0
+S = []
+for i in range(len(arrayF)):
+    if i == 0:
+        print(f'S{i+1} = [0, {arrayF[i]}]')
+        S.append([0, arrayF[i]])
+    else:
+        q += arrayF[i-1]
+        w = q + arrayF[i]
+        print(f'S{i+1} = [{q}, {w}]')
+        S.append([q,w])
+print('--------------------------------')
+
+arrayIndAfterS=[]
+for i in range(indiNumber):
+    randomNumber = round(random.uniform(0, 1), 8)
+    R = round(randomNumber * sum(arrayF), 3)
+    for j in range(indiNumber):
+        if R >= S[j][0] and R <= S[j][1]:
+            print(f'R{i+1} = {R} from S{j+1} --> Ind_{j+1}')
+            arrayIndAfterS.append(j)
+print('--------------------------------')
+Offspring = []
+for i in range(int(indiNumber/2)):
+    rl = random.randint(0, 8)
+    ar1 = number8[arrayIndAfterS[i]][rl:]
+    ar2 = number8[arrayIndAfterS[i+1]][rl:]
+    ar3 = number8[arrayIndAfterS[i]][:rl]
+    ar4 = number8[arrayIndAfterS[i+1]][:rl]
+    print(f'Pair {i+1} --> ({arrayIndAfterS[i]+1} - {arrayIndAfterS[i+1]+1})')
+
+    print(f'Parend G{arrayIndAfterS[i]+1} {number8[arrayIndAfterS[i]]}')
+    print(f'Parend G{arrayIndAfterS[i+1]+1} {number8[arrayIndAfterS[i+1]]}')
+    print(f'rl = {rl}')
+    Offspring.append(ar3 + ar2)
+    Offspring.append(ar4 + ar1)
+    print(f'offspring -> {ar3 + ar2}')
+    print(f'offspring -> {ar4 + ar1}')
+for i in range(len(Offspring)):
+    print(f'O{i+1} -> {Offspring[i]}')
+print('--------------------------------')
+
+number15 = []
+for _ in range(indiNumber):
+    arRandom = []
+    for _ in range(8):
+        arRandom.append(random.randint(1,15))
+    number15.append(arRandom)
+
+for i in number15:
+    print(i)
+print('--------------------------------')
+
+for i in range(len(number15)):
+    if 1 in number15[i]:
+        ind = number15[i].index(1)
+        Offspring[i][ind] = random.randint(1, 8)
+for i in range(len(Offspring)):
+    print(f'N{i+1} -> {Offspring[i]}')
+print('--------------------------------')
+count = 0
+while True: 
+    arRandom = []
+    count+=1
+    for _ in range(8):
+        arRandom.append(random.randint(1,8)) 
+    a = generateArray(arRandom)
+    sumOfAttack = 0
+    for i in range(len(arRandom)):
+        sumOfAttack += rUpper(int(arRandom[i]) - 1, i, a)
+        sumOfAttack += rDown(int(arRandom[i]) - 1, i, a)
+        sumOfAttack += line(int(arRandom[i]) - 1, i, a)
+    if sumOfAttack == 28:
+        print(arRandom)
+        print(f'After {count} steps we get 0 attacks')
+        for j in a:
+            print(j)
+        break
