@@ -1,0 +1,58 @@
+import random
+ruleNumber = int(input())
+n = ruleNumber
+ruleResultArray = []
+firstRandomArray = []
+arrayG = []
+prevArray = []
+allResult = []
+CACodesArray = [[0,0,0], [0,0,1], [0,1,0],
+                [0,1,1], [1,0,0], [1,0,1],
+                [1,1,0], [1,1,1]]
+
+for i in range(8):
+    if(ruleNumber >= 1):
+        if (int(ruleNumber) % 2 == 0):
+            ruleResultArray.append(0)
+        else:
+            ruleResultArray.append(1)
+        ruleNumber = ruleNumber/2
+    else:
+        ruleResultArray.append(0)
+
+for i in range(42):
+    firstRandomArray.append(random.randint(0, 1))
+
+#firstRandomArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+allResult.append(firstRandomArray) 
+
+def arrayGen(arr):
+    arrayG = []
+    arrayG.append([arr[-1], arr[0], arr[1]])
+    for i in range(42):
+        if (i == 40):
+            break
+        else:
+            arrayG.append([arr[i], arr[i+1], arr[i+2]])
+    arrayG.append([arr[-2], arr[-1], arr[0]])
+    return arrayG
+    
+def resutlArray(arg):
+    prevArray = []
+    r = arrayGen(arg)
+    for i in range(len(r)):
+        prevArray.append(ruleResultArray[CACodesArray.index(r[i])])
+    return prevArray
+
+for i in range(20):
+    allResult.append(resutlArray(allResult[i]))
+
+print(f'Rule Number: {n}')
+print()
+print(f'First random column: {firstRandomArray}')
+print()
+print(f'Elementary cellular automaton: {ruleResultArray}')
+print()
+for i in range(20):
+    print(allResult[i])
