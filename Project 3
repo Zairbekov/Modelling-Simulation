@@ -1,0 +1,120 @@
+from tkinter import *
+import threading
+import time
+
+highlightCol = "#FF00FF"
+bgCol = "white"
+popCol = "green"
+
+class GoL:
+    def __init__(self, width, height, scale):
+        self.width = width
+        self.height = height
+        self.scale = scale
+
+        self.halt = False
+        self.paused = True
+        self.delay = 1
+
+        self.gui = GoLGUI(self, width, height, scale)
+        self.gui.updateTitle(self.paused, self.delay)
+
+        self.makeTable()
+
+    def start(self):
+        t = threading.Thread(target=self.clock)
+        t.start()
+
+    #First Table Created     
+    def makeTable(self):
+        self.table = {}
+        for x in range(self.width):
+            for y in range(self.height):
+                self.table[(x, y)] = False
+        
+    def togglePause(self):
+        if not self.halt:
+            self.paused = not self.paused
+            self.gui.updateTitle(self.paused, self.delay)
+
+    def togglePop(self, event):
+        if (not self.halt) and self.paused:
+            x = int(event.x/self.scale)
+            y = int(event.y/self.scale)
+            if x >= 0 and x < self.width and y >= 0 and y < self.height:
+                self.table[(x, y)]= not self.table[(x, y)] #Here we colored by True
+                
+                if self.table[(x,y)]:
+                    self.gui.changeColour(x, y, popCol)
+                else:
+                    self.gui.changeColour(x, y, bgCol)
+                    
+    def clock(self):
+        while True:
+            if (not self.paused) and (not self.halt):
+                self.startGame()
+            time.sleep(self.delay)
+
+    def startGame(self):        
+        nextTable = {}
+
+        for x in range(self.width):
+            for y in range(self.height):
+                if self.table[(x, y)]:
+                    nextTable[(x, y)] = sum([sum([self.table.get((xi, yi), False) 
+                        for xi in range(x-1%20, x+2%20)])
+                        for yi in range(y-1%20, y+2%20)])-1 in [2, 3]
+                    if nextTable[(x, y)] != self.table[(x, y)]:
+                        self.gui.changeColour(x, y, bgCol)
+                else:
+                    nextTable[(x, y)] = sum([sum([self.table.get((xi, yi), False) 
+                        for xi in range(x-1%20, x+2%20)]) 
+                        for yi in range(y-1%20, y+2%20)])-1 == 2
+                    if nextTable[(x, y)] != self.table[(x, y)]:
+                        self.gui.changeColour(x, y, popCol)
+ 
+        self.gui.window.update()
+        self.table = nextTable
+
+class GoLGUI:
+    def __init__(self, game, width, height, scale):
+        self.game = game
+        self.width = width
+        self.height = height
+        self.scale = scale
+
+        self.window = Tk()
+        self.window.geometry("{0}x{1}".format(self.width*self.scale, self.height*self.scale))
+        self.window.resizable(False, False)
+
+        self.canvas = Canvas(self.window, width=self.width*self.scale, height=self.height*self.scale)
+        self.canvas.grid(row=0, column=0, sticky="nesw")
+
+        self.makeGrid()
+
+        self.window.bind("<Button-1>", lambda a: self.game.togglePop(a))
+        self.window.bind("<B1-Motion>", lambda a: self.game.togglePop(a))
+        self.window.bind("<Return>", lambda a: self.game.togglePause())
+
+    def makeGrid(self):
+        self.boxes = {}
+        
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                self.boxes[(x, y)] = self.canvas.create_rectangle(x*self.scale, y*self.scale,
+                                                                  (x*self.scale)+self.scale, (y*self.scale)+self.scale,
+                                                                  fill=bgCol, activefill=highlightCol)
+
+    def updateTitle(self, paused, delay):
+        if paused:
+            self.window.wm_title("{0}s | PAUSED".format(delay))
+        else:
+            self.window.wm_title("{0}s | Game started".format(delay))
+            
+    def changeColour(self, x, y, col):
+        self.canvas.itemconfig(self.boxes[(x, y)], fill=col)
+
+
+a = GoL(20, 20, 20)
+a.start()
+a.gui.window.mainloop()
