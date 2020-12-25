@@ -1,0 +1,35 @@
+import random
+dogFleas1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+dogFleas2 = [0]
+for i in range(20):
+    result = random.randint(0,20)
+    if result in dogFleas1:
+        dogFleas1.remove(result)
+        dogFleas2.append(result)
+        # print(f'From first dog to second dog jumped {result} Flea')
+    else:
+        dogFleas2.remove(result)
+        dogFleas1.append(result)
+        # print(f'From second dog to first dog jumped {result} Flea')
+    print(f'{result} -> {[len(dogFleas1), len(dogFleas2)]}')     
+
+
+dogFleas1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+dogFleas2 = [0] 
+counter = 0
+while True:
+    result = random.randint(0,20)
+    if result in dogFleas1:
+        dogFleas1.remove(result)
+        dogFleas2.append(result)
+        counter+=1
+    else:
+        dogFleas2.remove(result)
+        dogFleas1.append(result)
+        counter+=1
+    if (len(dogFleas2) == 1 and dogFleas2[0] == 0):
+        break
+    else:
+        continue
+        
+print(f'After {counter} will initial state')
